@@ -14,14 +14,16 @@
 namespace QL;
 use phpQuery;
 use QL\Dom\Query;
-use Illuminate\Support\Collection;
+use Tightenco\Collect\Support\Collection;
 use Closure;
+use QL\Services\MultiRequestService;
+
 
 /**
  * Class QueryList
  * @package QL
  *
- * @method string getHtml()
+ * @method string getHtml($rel = true)
  * @method QueryList setHtml($html)
  * @method QueryList html($html)
  * @method Dom\Elements find($selector)
@@ -30,11 +32,16 @@ use Closure;
  * @method QueryList removeHead()
  * @method QueryList query(Closure $callback = null)
  * @method Collection getData(Closure $callback = null)
+ * @method Array queryData(Closure $callback = null)
  * @method QueryList setData(Collection $data)
  * @method QueryList encoding(string $outputEncoding,string $inputEncoding = null)
  * @method QueryList get($url,$args = null,$otherArgs = [])
  * @method QueryList post($url,$args = null,$otherArgs = [])
+ * @method QueryList postJson($url,$args = null,$otherArgs = [])
+ * @method MultiRequestService multiGet($urls)
+ * @method MultiRequestService multiPost($urls)
  * @method QueryList use($plugins,...$opt)
+ * @method QueryList pipe(Closure $callback = null)
  */
 class QueryList
 {
@@ -64,7 +71,7 @@ class QueryList
 
     public static function __callStatic($name, $arguments)
     {
-        $instance = self::getInstance();
+        $instance = new self();
         return $instance->$name(...$arguments);
     }
 
@@ -97,6 +104,15 @@ class QueryList
      * Destruction of resources
      */
     public function destruct()
+    {
+        unset($this->query);
+        unset($this->kernel);
+    }
+
+    /**
+     * Destroy all documents
+     */
+    public static function destructDocuments()
     {
         phpQuery::$documents = [];
     }
